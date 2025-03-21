@@ -1,0 +1,30 @@
+.textImageContainer {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80vh; 
+  max-height: 600px; 
+  width: 100%;
+  background-size: 90%;
+  border-radius: 10px;
+  filter: grayscale(90%);
+  overflow: hidden;
+}
+
+.textImage {
+  font-size: 0.5rem;
+  font-weight: bold;
+  text-align: center;
+  width: 90%; 
+  height: 80vh; 
+  max-height: 600px; 
+  line-height: 1.2;
+  background: url('/images/ljnbg2.png') no-repeat top center / cover;
+  background-size: contain;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-transform: uppercase;
+  mix-blend-mode: multiply;
+}
