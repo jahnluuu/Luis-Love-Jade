@@ -18,9 +18,12 @@ const Home = () => {
 
   const tracks = [
     { title: "Co-Pilot", src: "/music/CoPilot.mp3" },
+    { title: "Til' Death Do Us Part", src: "/music/TilDeathDoUsPart.mp3" },
     { title: "Mahika", src: "/music/Mahika.mp3" },
     { title: "Paraluman", src: "/music/Paraluman.mp3" },
     { title: "Sining", src: "/music/Sining.mp3" },
+    { title: "Museo", src: "/music/Museo.mp3" },
+    { title: "No Promises", src: "/music/NoPromises.mp3" },
   ];
 
   useEffect(() => {
@@ -61,6 +64,25 @@ const Home = () => {
     if (window.innerWidth <= 768) {
       setShowModal(true);
     }
+  }, []);
+
+  useEffect(() => {
+    const setRandomStartTime = () => {
+      if (videoRef.current && videoRef.current.duration) {
+        const randomTime = Math.floor(Math.random() * videoRef.current.duration);
+        videoRef.current.currentTime = randomTime;
+      }
+    };
+
+    if (videoRef.current) {
+      videoRef.current.addEventListener('loadedmetadata', setRandomStartTime);
+    }
+
+    return () => {
+      if (videoRef.current) {
+        videoRef.current.removeEventListener('loadedmetadata', setRandomStartTime);
+      }
+    };
   }, []);
 
   const togglePlay = () => {
@@ -144,7 +166,7 @@ const Home = () => {
           autoPlay
           loop
           muted
-          style={{ transform: 'rotate(0deg)', maxHeight:'97vh', height: 'auto', width: '100vw' }} 
+          style={{ transform: 'rotate(0deg)', maxHeight:'96vh', height: 'auto', width: '100vw' }} 
 
         />
         <TextImage />
