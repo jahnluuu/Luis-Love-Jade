@@ -14,6 +14,7 @@ const Home = () => {
   const [isHovered, setIsHovered] = useState(false);
   const [hoverPosition, setHoverPosition] = useState({ x: 0, y: 0 }); 
   const [isTextHovered, setIsTextHovered] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   const tracks = [
     { title: "Co-Pilot", src: "/music/CoPilot.mp3" },
@@ -56,6 +57,12 @@ const Home = () => {
     };
   }, [tracks.length]);
 
+  useEffect(() => {
+    if (window.innerWidth <= 768) {
+      setShowModal(true);
+    }
+  }, []);
+
   const togglePlay = () => {
     if (audioRef.current) {
       if (isPlaying) {
@@ -94,24 +101,52 @@ const Home = () => {
     setHoverPosition({ x: e.clientX + xOffset, y: e.clientY + yOffset });
   };
 
+  const handleTextImageClick = () => {
+    if (window.innerWidth <= 768) {
+      setIsHovered(!isHovered);
+    }
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+  };
+
   return (
-    <div className={`relative flex flex-col items-center justify-center min-h-screen text-white text-center p-6 ${isTextHovered ? '' : 'bg-gradient-to-b from-black via-gray-900 to-black'}`}>
-      <video
-        ref={videoRef}
-        className={`absolute top-0 left-0 w-full h-full object-cover -z-10 ${isTextHovered ? 'visible' : 'invisible'}`}
-        src="/videos/jll.mp4"
-        autoPlay
-        loop
-        muted
-        style={{ marginBottom: '20px' }} 
-      />
+    <div className={`relative flex flex-col items-center justify-center min-h-screen text-white text-center p-6 ${isTextHovered ? '' : 'bg-gradient-to-b from-black via-gray-900 to-black'} sm:p-4`}>
+      {showModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50">
+          <div className="bg-white p-4 rounded-lg text-black text-center max-w-xs mx-auto">
+            <h2 className="text-lg font-bold mb-2">Better Viewed on Desktop</h2>
+            <p className="mb-4 text-sm">For the best experience, please view this website on a desktop.</p>
+            <button
+              className="bg-blue-500 text-white px-3 py-1 rounded"
+              onClick={closeModal}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
       <div
-        className="relative textImage-container cursor-pointer"
-        onClick={handleClick}
+        className="relative textImage-container cursor-pointer flex items-center justify-center"
+        onClick={(e) => {
+          handleClick(e);
+          handleTextImageClick(e);
+        }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         onMouseMove={handleMouseMove}
       >
+        <video
+          ref={videoRef}
+          className={`absolute top-0 left-0 w-full h-full object-cover -z-10 ${isTextHovered ? 'visible' : 'invisible'} sm:h-auto sm:w-auto responsive-video`}
+          src="/videos/03223.mp4"
+          autoPlay
+          loop
+          muted
+          style={{ transform: 'rotate(0deg)', maxHeight:'97vh', height: 'auto', width: '100vw' }} 
+
+        />
         <TextImage />
         {isHovered && (
           <div
@@ -129,7 +164,7 @@ const Home = () => {
       </div>
 
       <p
-        className={`mt-6 text-2xl italic animate-pulse cursor-pointer ${styles.magicalText}`}
+        className={`mt-6 text-2xl italic animate-pulse cursor-pointer ${styles.magicalText} sm:text-xl`}
         onMouseEnter={() => setIsTextHovered(true)}
         onMouseLeave={() => setIsTextHovered(false)}
         onClick={handleClick}
@@ -140,7 +175,7 @@ const Home = () => {
 
       <audio ref={audioRef} autoPlay />
 
-      <p className="mt-4 text-lg font-semibold">
+      <p className="mt-4 text-lg font-semibold sm:text-base">
         {hasStarted ? (
           isPlaying ? (
             <span>

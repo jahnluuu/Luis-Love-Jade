@@ -4,7 +4,7 @@ import styles from '../styles/TextImage.module.css';
 const TextImage = () => {
   return (
     <div className={styles.textImageContainer}>
-        <h1 className={styles.textImage}>
+        <h1 className={styles.textImage} style={{ userSelect: 'none' }}>
         Sometimes I wish you knew But I disguise the truth I say I'm happy but I'm still stuck on us, mmm, mmm, mmm Does your mind play this game too? Think 'bout me and you I guess I'll just pretend Until it all makes sense, hmm, hmm, hmm, hmm See you face
         to face, I'm thinking 'bout the days we used to be But I can't make a scene, but I can't make a scene See you face to face, I'm thinking 'bout the days we used to be But I can't make a scene, but I can't make it seem Like I want you You Even if
         it's true Even if it's true I guess it's overdue Tell me your point of view Tell me, am I to blame? You're so good with change, hmm, mmm, mmm A table set for two You got me waitin' but you ain't comin' through Try to stay patient but gotta face

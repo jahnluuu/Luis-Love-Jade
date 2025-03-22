@@ -13,6 +13,7 @@
 }
 
 .textImage {
+  position: relative;
   font-size: 0.5rem;
   font-weight: bold;
   text-align: center;
@@ -27,4 +28,36 @@
   -webkit-text-fill-color: transparent;
   text-transform: uppercase;
   mix-blend-mode: multiply;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .textImageContainer {
+    height: 60vh;
+    max-height: 400px;
+    padding: 10px; /* Add padding for better spacing */
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+  }
+  .textImage {
+    font-size: 0.4rem;
+    height: 60vh;
+    max-height: 400px;
+  }
+}
+
+@media (max-width: 480px) {
+  .textImageContainer {
+    height: 40vh;
+    max-height: 300px;
+    padding: 5px; /* Add padding for better spacing */
+    justify-content: center;
+    align-items: center;
+  }
+  .textImage {
+    font-size: 0.3rem;
+    height: 40vh;
+    max-height: 300px;
+  }
 }
