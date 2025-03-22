@@ -218,7 +218,7 @@ const Home = () => {
             </h2>
             <p className="mb-4 text-sm text-gray-700">
               For the best experience, please use a desktop.  
-              However, on mobile:
+              However, on mobile you can try rotating your device to landscape mode.
             </p>
             <ul className="text-left text-gray-600 text-sm mb-4 space-y-2">
               <li>👉 <strong>Tap</strong> the quote to play/pause music.</li>
@@ -270,7 +270,7 @@ const Home = () => {
         />
 
         <TextImage />
-        {isHovered && window.innerWidth > 768 &&(
+        {isHovered && (window.innerWidth > 768 || window.innerHeight < window.innerWidth) &&(
           <div
             className="absolute p-2 bg-gray-800 rounded-md text-xs text-gray-300"
             style={{ top: hoverPosition.y, left: hoverPosition.x }}
