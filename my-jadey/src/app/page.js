@@ -68,12 +68,10 @@ const Home = () => {
         const trimTime = trimmedTracks[track.title] || 0;
         const stopTime = audioRef.current.duration - trimTime;
   
-        // Ensure we have a valid stop time before checking
         if (stopTime > 0 && audioRef.current.currentTime >= stopTime) {
           audioRef.current.pause();
           setIsPlaying(false);
   
-          // Allow a short delay before switching tracks
           setTimeout(handleTrackEnd, 500);
         }
       }
