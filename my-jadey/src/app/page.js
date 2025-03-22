@@ -15,16 +15,29 @@ const Home = () => {
   const [hoverPosition, setHoverPosition] = useState({ x: 0, y: 0 }); 
   const [isTextHovered, setIsTextHovered] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [showInfoButton, setShowInfoButton] = useState(false);
+  const [countdown, setCountdown] = useState(15);
 
   const tracks = [
     { title: "Co-Pilot", src: "/music/CoPilot.mp3" },
     { title: "Til' Death Do Us Part", src: "/music/TilDeathDoUsPart.mp3" },
     { title: "Mahika", src: "/music/Mahika.mp3" },
+    { title: "Tahanan", src: "/music/Tahanan.mp3" },
     { title: "Paraluman", src: "/music/Paraluman.mp3" },
     { title: "Sining", src: "/music/Sining.mp3" },
     { title: "Museo", src: "/music/Museo.mp3" },
     { title: "No Promises", src: "/music/NoPromises.mp3" },
   ];
+
+  const trimmedTracks = {
+    "Mahika": 18,  
+    "Co-Pilot": 3,  
+    "Til' Death Do Us Part": 5,
+    "Sinig": 12,
+    "Museo": 3,
+    "Tahanan": 6,
+    "Paraluman": 2,
+  };
 
   useEffect(() => {
     if (audioRef.current) {
@@ -48,21 +61,41 @@ const Home = () => {
       setCurrentTrack((prev) => (prev + 1) % tracks.length);
       setIsPlaying(true);
     };
-
+  
+    const handleTimeUpdate = () => {
+      if (audioRef.current && !isNaN(audioRef.current.duration)) {
+        const track = tracks[currentTrack];
+        const trimTime = trimmedTracks[track.title] || 0;
+        const stopTime = audioRef.current.duration - trimTime;
+  
+        // Ensure we have a valid stop time before checking
+        if (stopTime > 0 && audioRef.current.currentTime >= stopTime) {
+          audioRef.current.pause();
+          setIsPlaying(false);
+  
+          // Allow a short delay before switching tracks
+          setTimeout(handleTrackEnd, 500);
+        }
+      }
+    };
+  
     if (audioRef.current) {
+      audioRef.current.addEventListener("timeupdate", handleTimeUpdate);
       audioRef.current.addEventListener("ended", handleTrackEnd);
     }
-
+  
     return () => {
       if (audioRef.current) {
+        audioRef.current.removeEventListener("timeupdate", handleTimeUpdate);
         audioRef.current.removeEventListener("ended", handleTrackEnd);
       }
     };
-  }, [tracks.length]);
+  }, [currentTrack, tracks]);
 
   useEffect(() => {
     if (window.innerWidth <= 768) {
       setShowModal(true);
+      setShowInfoButton(true);
     }
   }, []);
 
@@ -133,22 +166,90 @@ const Home = () => {
     setShowModal(false);
   };
 
+  const handleTouchStart = (e) => {
+    e.preventDefault(); 
+    setIsTextHovered(true);
+    
+    if (navigator.vibrate) {
+      navigator.vibrate(50);
+    }
+  
+    e.target.classList.add("active");
+  
+    if (videoRef.current) {
+      videoRef.current.play();
+    }
+  };
+  
+  const handleTouchEnd = (e) => {
+    setIsTextHovered(false);
+  
+    e.target.classList.remove("active");
+  
+    if (videoRef.current) {
+      videoRef.current.pause();
+    }
+  };
+  
+  useEffect(() => {
+    if (showModal) {
+      setCountdown(15); 
+  
+      const timer = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            setShowModal(false); 
+            clearInterval(timer);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000); 
+  
+      return () => clearInterval(timer);
+    }
+  }, [showModal]);
+
   return (
     <div className={`relative flex flex-col items-center justify-center min-h-screen text-white text-center p-6 ${isTextHovered ? '' : 'bg-gradient-to-b from-black via-gray-900 to-black'} sm:p-4`}>
       {showModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50">
-          <div className="bg-white p-4 rounded-lg text-black text-center max-w-xs mx-auto">
-            <h2 className="text-lg font-bold mb-2">Better Viewed on Desktop</h2>
-            <p className="mb-4 text-sm">For the best experience, please view this website on a desktop.</p>
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50 animate-fadeIn">
+          <div className="bg-white p-6 rounded-xl text-black text-center max-w-sm mx-auto shadow-2xl transform transition-all duration-300 scale-100">
+            <h2 className="text-xl font-bold mb-3 text-gray-900">
+              📱 Best Viewed on Desktop
+            </h2>
+            <p className="mb-4 text-sm text-gray-700">
+              For the best experience, please use a desktop.  
+              However, on mobile:
+            </p>
+            <ul className="text-left text-gray-600 text-sm mb-4 space-y-2">
+              <li>👉 <strong>Tap</strong> the quote to play/pause music.</li>
+              <li>👉 <strong>Double Tap</strong> the quote to next music.</li>
+              <li>👉 <strong>Hold</strong> the quote to play the video.</li>
+              
+            </ul>
+            <p className="text-gray-500 text-xs mb-3">
+              Auto-closing in <span className="font-semibold text-red-500">{countdown}s</span> ⏳
+            </p>
             <button
-              className="bg-blue-500 text-white px-3 py-1 rounded"
+              className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-5 py-2 rounded-lg w-full font-semibold transition-transform transform active:scale-95 hover:opacity-90"
               onClick={closeModal}
             >
-              Close
+              Got it! 🚀
             </button>
           </div>
         </div>
       )}
+
+      {showInfoButton && (
+        <button
+          className="fixed top-6 right-6 bg-none text-white px-4 py-2 rounded-full shadow-lg text-sm font-semibold transition-transform transform active:scale-95 hover:opacity-90"
+          onClick={() => setShowModal(true)}
+        >
+          ℹ️
+        </button>
+      )}
+
       <div
         className="relative textImage-container cursor-pointer flex items-center justify-center"
         onClick={(e) => {
@@ -161,16 +262,17 @@ const Home = () => {
       >
         <video
           ref={videoRef}
-          className={`absolute top-0 left-0 w-full h-full object-cover -z-10 ${isTextHovered ? 'visible' : 'invisible'} sm:h-auto sm:w-auto responsive-video`}
+          className={`absolute top-0 left-0 w-full h-full object-cover -z-10 transition-opacity duration-500 ${isTextHovered ? 'opacity-100 visible' : 'opacity-0 invisible'} sm:h-auto sm:w-auto responsive-video`}
           src="/videos/03223.mp4"
           autoPlay
           loop
           muted
+          playsInline
           style={{ transform: 'rotate(0deg)', maxHeight:'96vh', height: 'auto', width: '100vw' }} 
-
         />
+
         <TextImage />
-        {isHovered && (
+        {isHovered && window.innerWidth > 768 &&(
           <div
             className="absolute p-2 bg-gray-800 rounded-md text-xs text-gray-300"
             style={{ top: hoverPosition.y, left: hoverPosition.x }}
@@ -190,7 +292,9 @@ const Home = () => {
         onMouseEnter={() => setIsTextHovered(true)}
         onMouseLeave={() => setIsTextHovered(false)}
         onClick={handleClick}
-        style={{ userSelect: 'none' }}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        style={{ userSelect: 'none', touchAction: 'none' }} 
       >
         "Every moment with you is a beautiful memory."
       </p>
