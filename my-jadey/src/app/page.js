@@ -6,9 +6,10 @@ import styles from './styles/Home.module.css';
 
 const Home = () => {
   const audioRef = useRef(null);
-  const videoRef = useRef(null);
+  const videoRefs = useRef([]); 
   const [isPlaying, setIsPlaying] = useState(false); 
   const [currentTrack, setCurrentTrack] = useState(0);
+  const [currentVideo, setCurrentVideo] = useState(0);
   const [clickCount, setClickCount] = useState(0);
   const [hasStarted, setHasStarted] = useState(false); 
   const [isHovered, setIsHovered] = useState(false);
@@ -20,6 +21,7 @@ const Home = () => {
 
   const tracks = [
     { title: "Co-Pilot", src: "/music/CoPilot.mp3" },
+    { title: "Oksihina", src: "/music/Oksihina.mp3" },
     { title: "Til' Death Do Us Part", src: "/music/TilDeathDoUsPart.mp3" },
     { title: "Mahika", src: "/music/Mahika.mp3" },
     { title: "Tahanan", src: "/music/Tahanan.mp3" },
@@ -27,6 +29,10 @@ const Home = () => {
     { title: "Sining", src: "/music/Sining.mp3" },
     { title: "Museo", src: "/music/Museo.mp3" },
     { title: "No Promises", src: "/music/NoPromises.mp3" },
+  ];
+
+  const videos = [
+    { title: "Video 1", src: "/videos/03225.mp4" },
   ];
 
   const trimmedTracks = {
@@ -99,22 +105,42 @@ const Home = () => {
 
   useEffect(() => {
     const setRandomStartTime = () => {
-      if (videoRef.current && videoRef.current.duration) {
-        const randomTime = Math.floor(Math.random() * videoRef.current.duration);
-        videoRef.current.currentTime = randomTime;
+      if (videoRefs.current[currentVideo] && videoRefs.current[currentVideo].duration) {
+        const randomTime = Math.floor(Math.random() * videoRefs.current[currentVideo].duration);
+        videoRefs.current[currentVideo].currentTime = randomTime;
       }
     };
 
-    if (videoRef.current) {
-      videoRef.current.addEventListener('loadedmetadata', setRandomStartTime);
+    const randomVideoIndex = Math.floor(Math.random() * videos.length);
+    setCurrentVideo(randomVideoIndex);
+
+    if (videoRefs.current[randomVideoIndex]) {
+      videoRefs.current[randomVideoIndex].addEventListener('loadedmetadata', setRandomStartTime);
     }
 
     return () => {
-      if (videoRef.current) {
-        videoRef.current.removeEventListener('loadedmetadata', setRandomStartTime);
+      if (videoRefs.current[randomVideoIndex]) {
+        videoRefs.current[randomVideoIndex].removeEventListener('loadedmetadata', setRandomStartTime);
       }
     };
-  }, []);
+  }, []); 
+
+  useEffect(() => {
+    const handleVideoEnd = () => {
+      setCurrentVideo((prev) => (prev + 1) % videos.length); 
+    };
+
+    if (videoRefs.current[currentVideo]) {
+      videoRefs.current[currentVideo].addEventListener("ended", handleVideoEnd);
+      videoRefs.current[currentVideo].play();
+    }
+
+    return () => {
+      if (videoRefs.current[currentVideo]) {
+        videoRefs.current[currentVideo].removeEventListener("ended", handleVideoEnd);
+      }
+    };
+  }, [currentVideo]);
 
   const togglePlay = () => {
     if (audioRef.current) {
@@ -134,7 +160,7 @@ const Home = () => {
   };
 
   const prevTrack = () => {
-    setCurrentTrack((prev) => (prev - 1 + tracks.length) % tracks.length);
+    setCurrentTrack((prev) => (prev - 1 + tracks.length) % tracks.length); 
     setIsPlaying(true);
   };
 
@@ -174,8 +200,8 @@ const Home = () => {
   
     e.target.classList.add("active");
   
-    if (videoRef.current) {
-      videoRef.current.play();
+    if (videoRefs.current[currentVideo]) {
+      videoRefs.current[currentVideo].play();
     }
   };
   
@@ -184,8 +210,8 @@ const Home = () => {
   
     e.target.classList.remove("active");
   
-    if (videoRef.current) {
-      videoRef.current.pause();
+    if (videoRefs.current[currentVideo]) {
+      videoRefs.current[currentVideo].pause();
     }
   };
   
@@ -258,19 +284,21 @@ const Home = () => {
         onMouseLeave={() => setIsHovered(false)}
         onMouseMove={handleMouseMove}
       >
-        <video
-          ref={videoRef}
-          className={`absolute top-0 left-0 w-full h-full object-cover -z-10 transition-opacity duration-500 ${isTextHovered ? 'opacity-100 visible' : 'opacity-0 invisible'} sm:h-auto sm:w-auto responsive-video`}
-          src="/videos/03223.mp4"
-          autoPlay
-          loop
-          muted
-          playsInline
-          style={{ transform: 'rotate(0deg)', maxHeight:'96vh', height: 'auto', width: '100vw' }} 
-        />
-
+        {videos.map((video, index) => (
+          <video
+            key={index}
+            ref={(el) => (videoRefs.current[index] = el)}
+            className={`absolute top-0 left-0 w-full h-full object-cover -z-10 transition-opacity duration-500 ${
+              currentVideo === index ? "opacity-100 visible" : "opacity-0 invisible"
+            } sm:h-auto sm:w-auto responsive-video`}
+            src={video.src}
+            muted
+            playsInline
+            style={{ transform: 'rotate(0deg)', maxHeight: '96vh', height: 'auto', width: '100vw' }}
+          />
+        ))}
         <TextImage />
-        {isHovered && (window.innerWidth > 768 || window.innerHeight < window.innerWidth) &&(
+        {isHovered && (window.innerWidth > 900 || window.innerHeight < window.innerWidth) && (
           <div
             className="absolute p-2 bg-gray-800 rounded-md text-xs text-gray-300"
             style={{ top: hoverPosition.y, left: hoverPosition.x }}
@@ -279,7 +307,6 @@ const Home = () => {
             <ul className="mt-1 text-gray-400">
               <li>🔹 <strong>1 Click</strong> → Play / Pause</li>
               <li>🔹 <strong>2 Clicks</strong> → Next Track</li>
-              <li>🔹 <strong>3 Clicks</strong> → Previous Track</li>
             </ul>
           </div>
         )}
